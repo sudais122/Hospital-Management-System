@@ -21,12 +21,19 @@ const userschema = new Schema(
             required: true,
             unique:true
         },
+        roles:{
+            type: String,
+            require:true,
+            enum: ['doctor', "nurse" , "patient", "admin"]
+        },
         password:{
             type:String,
             required:true,
+            select: false
         },
         refreshtoken:{
             type:String,
+            select:false
         }
     },{timestamps: true}
 )
