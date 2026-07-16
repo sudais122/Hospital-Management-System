@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const AppointmentSchema = new Schema(
+const MedicalrecordSchema = new Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -14,18 +14,22 @@ const AppointmentSchema = new Schema(
       required: true,
       index: true,
     },
-    date: {
-      type: Date,
+    appointment: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Appointment",
+    },
+    percriptionpicurl: {
+      type: string, //url come the cloudnary
       required: true,
     },
-    status: {
-      type: String,
-      required: true,
-      enum: ["Pending", "conformed", "Completed", "cancelled"],
-      index: true,
+    followupdate: {
+      type: Date,
     },
   },
   { timestamps: true },
 );
 
-export const Appointment = mongoose.model("Appointment", AppointmentSchema);
+export const medicalrecord = mongoose.model(
+  "medicalrecord",
+  MedicalrecordSchema,
+);
