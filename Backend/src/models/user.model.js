@@ -48,4 +48,4 @@ userschema.method.ispasswordcorrect = async (password) =>{
     return await bcrypt.compare(this.password,password)
 }
 
-export const user = mongoose.model("user",userschema)
+export const User = mongoose.model("User",userschema)

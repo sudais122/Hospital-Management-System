@@ -4,8 +4,9 @@ const NurseSchema = new Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "user",
+      ref: "User",
       required: true,
+      index:true
     },
     licenseNumber: {
       type: string,
@@ -36,4 +37,4 @@ const NurseSchema = new Schema(
   { timestamps: true },
 );
 
-export default Nurse = mongoose.Schema("Nurse", NurseSchema);
+export const Nurse = mongoose.Schema("Nurse", NurseSchema);

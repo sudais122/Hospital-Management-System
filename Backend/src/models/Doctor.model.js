@@ -4,7 +4,8 @@ const DoctorScheme = new Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "user",
+      ref: "User",
+      index:true
     },
     licenseNumber: {
       type: string,
@@ -42,6 +43,10 @@ const DoctorScheme = new Schema(
       min: 0,
       default: 0,
     },
+    avatar:{
+      type:string,
+      required:true
+    },
     startTime: {
       type: String,
       required: true,
@@ -62,4 +67,4 @@ const DoctorScheme = new Schema(
   { timestamps: true },
 );
 
-export default Doctor = mongoose.model("Doctor", DoctorScheme);
+export  const Doctor = mongoose.model("Doctor", DoctorScheme);

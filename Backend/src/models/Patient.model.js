@@ -4,8 +4,9 @@ const PatientSchema = new Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "user",
+      ref: "User",
       required: true,
+      index:true
     },
     DateOfBirth: {
       type: Date,
@@ -24,4 +25,4 @@ const PatientSchema = new Schema(
   { timestamps: true },
 );
 
-export default Patient = mongoose.model("Patient", PatientSchema);
+export const Patient = mongoose.model("Patient", PatientSchema);
