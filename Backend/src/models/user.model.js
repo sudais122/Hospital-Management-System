@@ -21,7 +21,7 @@ const userschema = new Schema(
             required: true,
             unique:true
         },
-        roles:{
+        role:{
             type: String,
             require:true,
             enum: ['doctor', "nurse" , "patient", "admin"]

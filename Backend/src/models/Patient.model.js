@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose ,{Schema} from "mongoose";
 
 const PatientSchema = new Schema(
   {
@@ -13,13 +13,13 @@ const PatientSchema = new Schema(
       required: true,
     },
     bloodgroup: {
-      type: string,
+      type: String,
       enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
     },
     emergencyContact: {
-      name: { type: string, required: true },
-      phone: { type: string, required: true, unique: true },
-      relation: { type: string, required: true, default: "Brother" },
+      name: { type: String, required: true },
+      Phone: { type: String, required: true, unique: true },
+      relation: { type: String, required: true, default: "Brother" },
     },
   },
   { timestamps: true },
