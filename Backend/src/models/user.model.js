@@ -29,23 +29,19 @@ const userschema = new Schema(
         password:{
             type:String,
             required:true,
-            select: false
         },
         refreshtoken:{
             type:String,
-            select:false
         }
     },{timestamps: true}
 )
 
-userschema.pre('save', async ()=>{
-    if(!password.isModified('password')) return next;
-
-    this.password = await bcrypt.hash(this.password)
-})
-
-userschema.method.ispasswordcorrect = async (password) =>{
-    return await bcrypt.compare(this.password,password)
-}
+userschema.pre("save", async function () {
+  if (!this.isModified("password")) return;   
+  this.password = await bcrypt.hash(this.password, 10);
+});
+userschema.methods.isPasswordCorrect = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
 
 export const User = mongoose.model("User",userschema)

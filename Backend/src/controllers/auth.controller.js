@@ -2,6 +2,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/User.model.js";
 import { Patient } from "../models/Patient.model.js";
+import jwt from "jsonwebtoken";
 
 const RegisterPatient = async (req, res) => {
   const {
@@ -14,7 +15,7 @@ const RegisterPatient = async (req, res) => {
     bloodgroup,
     emergencyContact,
   } = req.body;
-  const { name, Phone: emergencyphone, relation } = emergencyContact;
+  const { name, Phone: emergencyphone, relation } = emergencyContact || {};
 
   if (emergencyphone === phone) {
     throw new ApiError("Emergenct conatct and contct must be different");
@@ -48,15 +49,21 @@ const RegisterPatient = async (req, res) => {
   });
 
   const patient = await Patient.create({
+    user: user._id,   
     DateOfBirth,
     bloodgroup,
     emergencyContact,
   });
 
+const token = jwt.sign(
+     { id: user._id, role: user.role },
+     process.env.JWT_SECRET,
+     { expiresIn: process.env.JWT_SECRET_EXPIRE_IN },
+   );
+
   return res
     .status(201)
-    .json(new ApiResponse(201, user, patient, "Registration successful"));
-
+    .json(new ApiResponse(201, {user, patient,token}, "Registration successful"));
 };
 
 
@@ -69,13 +76,11 @@ const login = async (req,res) =>{
         throw new ApiError("invalid credentials")
     }
 
-    const passwordcorrect = await User.ispasswordcorrect(password);
+    const passwordcorrect = await User.isPasswordCorrect(password);
 
     if(!passwordcorrect){
         throw new ApiError('invalid password')
     }
-
-
   return res
     .status(201)
     .json(new ApiResponse(201, `${email} login sucessfully at ${now.toLocaleString()}`));
