@@ -55,12 +55,6 @@ const RegisterPatient = async (req, res) => {
     emergencyContact,
   });
 
-const token = jwt.sign(
-     { id: user._id, role: user.role },
-     process.env.JWT_SECRET,
-     { expiresIn: process.env.JWT_SECRET_EXPIRE_IN },
-   );
-
   return res
     .status(201)
     .json(new ApiResponse(201, {user, patient,token}, "Registration successful"));
@@ -81,8 +75,16 @@ const login = async (req,res) =>{
     if(!passwordcorrect){
         throw new ApiError('invalid password')
     }
+
+    const acesstoken = user.genarteacesstoken()
+    const refreshtoken = user.genarterefreshtoken();
+
+    user.refreshtoken = refreshtoken;
+
+    await user.save({validateBeforeSave: false});
   return res
     .status(201)
+    .cookie(acesstoken,refreshtoken)
     .json(new ApiResponse(201, `${email} login sucessfully at ${now.toLocaleString()}`));
 }
 export {
