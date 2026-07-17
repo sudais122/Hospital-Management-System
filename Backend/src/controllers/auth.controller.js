@@ -49,7 +49,7 @@ const RegisterPatient = async (req, res) => {
   });
 
   const patient = await Patient.create({
-    user: user._id,   
+    user: user._id,
     DateOfBirth,
     bloodgroup,
     emergencyContact,
@@ -57,37 +57,72 @@ const RegisterPatient = async (req, res) => {
 
   return res
     .status(201)
-    .json(new ApiResponse(201, {user, patient,token}, "Registration successful"));
+    .json(
+      new ApiResponse(201, { user, patient, token }, "Registration successful"),
+    );
 };
 
+const login = async (req, res) => {
+  const { email, password } = req.body;
 
-const login = async (req,res) =>{
-    const {email,password} = req.body;
+  const user = await User.finOne({ email });
 
-    const user = await User.finone({email});
+  if (!user) {
+    throw new ApiError("invalid credentials");
+  }
 
-    if(!user){
-        throw new ApiError("invalid credentials")
-    }
+  const passwordcorrect = await user.isPasswordCorrect(password);
 
-    const passwordcorrect = await User.isPasswordCorrect(password);
+  if (!passwordcorrect) {
+    throw new ApiError("invalid password");
+  }
 
-    if(!passwordcorrect){
-        throw new ApiError('invalid password')
-    }
+  //step 1
+  const acesstoken = user.genarteacesstoken();
+  const refreshtoken = user.genarterefreshtoken();
 
-    const acesstoken = user.genarteacesstoken()
-    const refreshtoken = user.genarterefreshtoken();
+  //step 2
+  user.refreshtoken = refreshtoken;
 
-    user.refreshtoken = refreshtoken;
+  //step 3
+  await user.save({ validateBeforeSave: false });
 
-    await user.save({validateBeforeSave: false});
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  const now = new Date();
   return res
     .status(201)
-    .cookie(acesstoken,refreshtoken)
-    .json(new ApiResponse(201, `${email} login sucessfully at ${now.toLocaleString()}`));
-}
-export {
-    RegisterPatient,
-    login 
+    .cookie("acesstoken", acesstoken, options)
+    .cookie("refreshtoken", refreshtoken, options)
+    .json(
+      new ApiResponse(
+        201,
+        `${email} login sucessfully at ${now.toLocaleString()}`,
+      ),
+    );
 };
+
+const refreshacesstoken = async (req, res) => {
+  const incomingtoken = req.cookie.refreshtoken;
+
+  jwt.verify(incomingtoken, process.env.REFRESH_TOKEN_EXPIRY);
+
+  const user = await User.findById(decode._id);
+
+  if (incomingtoken != user.refreshtoken) throw new ApiError(401);
+
+  const newrefreshtoken = user.genarterefreshtoken();
+  const newaccesstoken = user.genarteacesstoken();
+
+  user.refreshtoken = newrefreshtoken;
+
+  await user.save({ validateBeforeSave: false });
+
+  return res
+    .cookie("acesstoken", newaccesstoken)
+    .cookie("refreshtoken", newrefreshtoken);
+};
+export { RegisterPatient, login, refreshacesstoken };
