@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcrypt";
-import { JsonWebTokenError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 const userschema = new Schema(
   {
@@ -56,7 +56,7 @@ userschema.methods.genarteacesstoken = function () {
     },
     process.env.ACCESS_TOKEN_SECRET,
     {
-      expireIn: process.env.ACCESS_TOKEN_SECRET,
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
     },
   );
 };
@@ -67,7 +67,7 @@ userschema.methods.genarterefreshtoken = function(){
     },
     process.env.REFRESH_TOKEN_SECRET,
     {
-        expireIn: process.env.REFRESH_TOKEN_EXPIRY
+        expiresIn: process.env.REFRESH_TOKEN_EXPIRY
     }
 )
 };

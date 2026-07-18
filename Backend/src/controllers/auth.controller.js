@@ -57,15 +57,13 @@ const RegisterPatient = async (req, res) => {
 
   return res
     .status(201)
-    .json(
-      new ApiResponse(201, { user, patient, token }, "Registration successful"),
-    );
+    .json(new ApiResponse(201, { user, patient }, "Registration successful"));
 };
 
 const login = async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await User.finOne({ email });
+  const user = await User.findOne({ email });
 
   if (!user) {
     throw new ApiError("invalid credentials");
@@ -77,22 +75,25 @@ const login = async (req, res) => {
     throw new ApiError("invalid password");
   }
 
-  //step 1
+  //step 1 generate tokens
   const acesstoken = user.genarteacesstoken();
   const refreshtoken = user.genarterefreshtoken();
 
-  //step 2
+  //step 2 update token in dabatase
   user.refreshtoken = refreshtoken;
 
   //step 3
   await user.save({ validateBeforeSave: false });
 
+  // step 4 craete options for security purpose
   const options = {
     httpOnly: true,
     secure: true,
   };
 
   const now = new Date();
+
+  //step 5 send it in cookie
   return res
     .status(201)
     .cookie("acesstoken", acesstoken, options)
@@ -100,6 +101,7 @@ const login = async (req, res) => {
     .json(
       new ApiResponse(
         201,
+        {user,acesstoken},
         `${email} login sucessfully at ${now.toLocaleString()}`,
       ),
     );
@@ -125,4 +127,39 @@ const refreshacesstoken = async (req, res) => {
     .cookie("acesstoken", newaccesstoken)
     .cookie("refreshtoken", newrefreshtoken);
 };
-export { RegisterPatient, login, refreshacesstoken };
+
+const getcurrectuser = async (req, res) => {
+  res.json(new ApiResponse(200, req.user, "user fetched sucessfully"));
+};
+
+const logout = async (req, res) => {
+  await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $unset: {
+        refreshToken: 1,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  return res
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        {},
+        "User logged out successfully"
+      )
+    );
+};
+export { RegisterPatient, login, refreshacesstoken, logout, getcurrectuser };
