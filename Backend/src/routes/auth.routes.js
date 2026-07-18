@@ -5,6 +5,7 @@ import {
   logout,
   getcurrectuser,
   refreshacesstoken,
+  updatepassowrd
 } from "../controllers/auth.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
@@ -15,5 +16,6 @@ router.post("/login", login);
 router.post("/refreshacesstoken", refreshacesstoken);
 router.get("/get-current-user", verifyJWT, getcurrectuser);
 router.post("/logout", verifyJWT, logout);
+router.post("/update-password",verifyJWT,updatepassowrd);
 
 export default router;

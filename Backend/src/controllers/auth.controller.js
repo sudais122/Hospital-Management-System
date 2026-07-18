@@ -161,4 +161,25 @@ const logout = async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, {}, "User logged out successfully"));
 };
-export { RegisterPatient, login, refreshacesstoken, logout, getcurrectuser };
+
+const updatepassowrd = async (req, res) => {
+  const { oldpassword, newpassword } = req.body ?? {};
+
+  if ([oldpassword, newpassword].some((f) => !f?.trim())) {
+    throw new ApiError(400, "Old and new password are required");
+  }
+
+  const user = await User.findById(req.user._id);
+  if (!user) throw new ApiError(404, "User not found");
+
+  const isValid = await user.isPasswordCorrect(oldpassword);
+  if (!isValid) throw new ApiError(401, "Old password is incorrect");
+
+  user.password = newpassword;
+  await user.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "Password updated successfully"));
+};
+export { RegisterPatient, login, refreshacesstoken, logout, getcurrectuser,updatepassowrd };
