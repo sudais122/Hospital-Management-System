@@ -4,6 +4,7 @@ import { User } from "../models/User.model.js";
 import { Patient } from "../models/Patient.model.js";
 import jwt from "jsonwebtoken";
 
+//Register Function
 const RegisterPatient = async (req, res) => {
   const {
     fullname,
@@ -60,6 +61,7 @@ const RegisterPatient = async (req, res) => {
     .json(new ApiResponse(201, { user, patient }, "Registration successful"));
 };
 
+//login Function
 const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -101,12 +103,13 @@ const login = async (req, res) => {
     .json(
       new ApiResponse(
         201,
-        {user,acesstoken},
+        { user, acesstoken },
         `${email} login sucessfully at ${now.toLocaleString()}`,
       ),
     );
 };
 
+//refreshacesstoken Function
 const refreshacesstoken = async (req, res) => {
   const incomingtoken = req.cookie.refreshtoken;
 
@@ -128,10 +131,12 @@ const refreshacesstoken = async (req, res) => {
     .cookie("refreshtoken", newrefreshtoken);
 };
 
+//getcurrectuser Function
 const getcurrectuser = async (req, res) => {
   res.json(new ApiResponse(200, req.user, "user fetched sucessfully"));
 };
 
+// logout functoin
 const logout = async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
@@ -142,7 +147,7 @@ const logout = async (req, res) => {
     },
     {
       new: true,
-    }
+    },
   );
 
   const options = {
@@ -154,12 +159,6 @@ const logout = async (req, res) => {
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
     .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        {},
-        "User logged out successfully"
-      )
-    );
+    .json(new ApiResponse(200, {}, "User logged out successfully"));
 };
 export { RegisterPatient, login, refreshacesstoken, logout, getcurrectuser };
