@@ -3,22 +3,26 @@ import mongoose, { Schema } from "mongoose";
 const NurseSchema = new Schema(
   {
     user: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index:true
+      unique: true, 
+      index: true,
     },
     licenseNumber: {
       type: String,
       required: true,
       unique: true,
+      trim: true,
     },
     department: {
       type: String,
       default: "ICU",
+      trim: true,
     },
     ward: {
       type: String,
+      trim: true,
     },
     shift: {
       type: String,
@@ -28,11 +32,14 @@ const NurseSchema = new Schema(
     qualification: {
       type: String,
       required: true,
+      trim: true,
     },
-    assignedDoctors: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Doctor",
-    },
+    assignedDoctors: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Doctor",
+      },
+    ],
   },
   { timestamps: true },
 );
