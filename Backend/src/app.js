@@ -9,7 +9,7 @@ app.use(
   cors({
     origin: process.env.CORS_ORIGIN,
     credentials: true,
-  })
+  }),
 );
 
 // Middleware
@@ -20,9 +20,11 @@ app.use(cookieParser());
 
 // Import Routes
 import authRouter from "./routes/auth.routes.js";
-import Doctor  from "./routes/doctor.routes.js";
+import Doctor from "./routes/doctor.routes.js";
+import Nurse from "./models/Nurse.model.js";
 
-app.use('/user',authRouter);
-app.use('/doctor', Doctor);
+app.use("/user", authRouter);
+app.use("/doctor", Doctor);
+app.use("/Nurse", Nurse);
 
 export { app };

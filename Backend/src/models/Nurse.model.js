@@ -9,24 +9,24 @@ const NurseSchema = new Schema(
       index:true
     },
     licenseNumber: {
-      type: string,
+      type: String,
       required: true,
       unique: true,
     },
     department: {
-      type: string,
+      type: String,
       default: "ICU",
     },
     ward: {
       type: String,
     },
     shift: {
-      type: string,
+      type: String,
       enum: ["morning", "evening", "night"],
       default: "morning",
     },
     qualification: {
-      type: string,
+      type: String,
       required: true,
     },
     assignedDoctors: {
@@ -37,4 +37,6 @@ const NurseSchema = new Schema(
   { timestamps: true },
 );
 
-export const Nurse = mongoose.Schema("Nurse", NurseSchema);
+const Nurse = mongoose.model("Nurse", NurseSchema);
+
+export default Nurse;
