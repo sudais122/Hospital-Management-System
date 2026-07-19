@@ -2,7 +2,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/User.model.js";
 import { Doctor } from "../models/Doctor.model.js";
-import {uploadfile} from '../utils/cloudnary.js'
+import { uploadfile } from "../utils/cloudnary.js";
 
 const adddoctor = async (req, res) => {
   const {
@@ -18,7 +18,7 @@ const adddoctor = async (req, res) => {
     endtime,
   } = req.body ?? {};
   const email = req.body?.email?.trim().toLowerCase();
-
+console.log(req.body);
   const stringFields = [
     fullname,
     email,
@@ -55,7 +55,6 @@ const adddoctor = async (req, res) => {
     }
   }
 
-  // 5. Create the auth user (role hardcoded)
   const user = await User.create({
     fullname,
     email,
@@ -64,7 +63,6 @@ const adddoctor = async (req, res) => {
     password,
   });
 
-  // 6. Create the doctor profile — rollback the user if it fails
   let doctor;
   try {
     doctor = await Doctor.create({
@@ -80,16 +78,71 @@ const adddoctor = async (req, res) => {
     });
   } catch (error) {
     await User.findByIdAndDelete(user._id);
-    throw new ApiError(500, "Failed to create doctor profile: " + error.message);
+    throw new ApiError(
+      500,
+      "Failed to create doctor profile: " + error.message,
+    );
   }
 
-  const safeUser = await User.findById(user._id).select("-password -refreshtoken");
+  const safeUser = await User.findById(user._id).select(
+    "-password -refreshtoken",
+  );
 
   return res
     .status(201)
     .json(
-      new ApiResponse(201, { user: safeUser, doctor }, "Doctor created successfully"),
+      new ApiResponse(
+        201,
+        { user: safeUser, doctor },
+        "Doctor created successfully",
+      ),
     );
 };
 
-export {adddoctor}
+const updatedoctor = async (req, res) => {
+  const userid = req.params.id;
+
+  const {
+    fullname,
+    email,
+    phone,
+    licenseNumber,
+    experience,
+    specialization,
+    weekavalibility,
+    startTime,
+    endtime,
+  } = req.body;
+
+  const allowefield = req.body;
+
+  if (allowefield.password || allowefield.role) {
+    throw new ApiError(400, "Cannot update password or role");
+  }
+
+  const updatedoctor = await User.findByIdAndUpdate(userid, allowefield, {
+    new: true,
+  }).select("-password -refreshtoken");
+
+  if (!updatedoctor) throw new ApiError(400, "doctor not found");
+
+  return res.json(
+    new ApiResponse(
+      200,
+      { user: updatedoctor },
+      "Doctor deatils updated sucessfully",
+    ),
+  );
+};
+
+const deletedoctor = async (req, res) => {
+  const userid = req.params.id;
+
+  const deleteone = await User.deleteOne({userid});
+  if (!deleteone) throw new ApiError(400, "user nnot found");
+
+  return res.json(
+    new ApiResponse(200, { user: deleteone }, "User delete suceessfully"),
+  );
+};
+export { adddoctor, updatedoctor, deletedoctor };
