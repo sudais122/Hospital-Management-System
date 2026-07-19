@@ -8,25 +8,25 @@ const DoctorScheme = new Schema(
       index:true
     },
     licenseNumber: {
-      type: string,
+      type: String,
       required: true,
       unique: true,
       trim: true,
     },
     experience: {
-      type: number,
+      type: Number,
       required: true,
       trim: true,
       min: 0,
       default: 0,
     },
     specialization: {
-      type: string,
+      type: String,
       required: true,
     },
     weekavalibility: {
       day: {
-        type: string,
+        type: String,
         enum: [
           "monday",
           "tuesday",
@@ -39,12 +39,12 @@ const DoctorScheme = new Schema(
       },
     },
     consultationFee: {
-      type: number,
+      type: Number,
       min: 0,
       default: 0,
     },
     avatar:{
-      type:string,
+      type:String,
       required:true
     },
     startTime: {
@@ -56,7 +56,7 @@ const DoctorScheme = new Schema(
       ],
     },
     endtime: {
-      type: string,
+      type: String,
       required: true,
       match: [
         /^([01][0-9]|2[0-3]):[0-5][0-9]$/,
@@ -67,4 +67,4 @@ const DoctorScheme = new Schema(
   { timestamps: true },
 );
 
-export  const Doctor = mongoose.model("Doctor", DoctorScheme);
+export const Doctor = mongoose.model("Doctor", DoctorScheme);
