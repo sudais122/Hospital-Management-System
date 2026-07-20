@@ -2,6 +2,11 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
+// Import Routes
+import authRouter from "./routes/auth.routes.js";
+import Doctor from "./routes/doctor.routes.js";
+import Nurse from "./routes/nurse.routes.js";
+
 const app = express();
 
 // CORS Configuration
@@ -18,10 +23,6 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 app.use(cookieParser());
 
-// Import Routes
-import authRouter from "./routes/auth.routes.js";
-import Doctor from "./routes/doctor.routes.js";
-import Nurse from "./models/Nurse.model.js";
 
 app.use("/user", authRouter);
 app.use("/doctor", Doctor);

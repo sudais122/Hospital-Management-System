@@ -3,6 +3,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/User.model.js";
 import { Patient } from "../models/Patient.model.js";
 import jwt from "jsonwebtoken";
+import Nurse from "../models/Nurse.model.js";
 
 //Register Function
 const RegisterPatient = async (req, res) => {
@@ -65,29 +66,35 @@ const RegisterPatient = async (req, res) => {
 const login = async (req, res) => {
   const { email, password } = req.body;
 
+  // Find user by email
   const user = await User.findOne({ email });
 
   if (!user) {
-    throw new ApiError("invalid credentials");
+    throw new ApiError(401, "Invalid credentials");
   }
 
-  const passwordcorrect = await user.isPasswordCorrect(password);
+  // Verify password
+  const passwordCorrect = await user.isPasswordCorrect(password);
 
-  if (!passwordcorrect) {
-    throw new ApiError("invalid password");
+  if (!passwordCorrect) {
+    throw new ApiError(401, "Invalid password");
   }
 
-  //step 1 generate tokens
-  const acesstoken = user.genarteacesstoken();
-  const refreshtoken = user.genarterefreshtoken();
+  // If the user is a nurse, fetch nurse profile and assigned doctor
+  let nurse = null;
 
-  //step 2 update token in dabatase
-  user.refreshtoken = refreshtoken;
+  if (user.role === "nurse") {
+    nurse = await Nurse.findOne({ user: user._id })
+  }
 
-  //step 3
+  // Generate tokens
+  const accessToken = user.genarteacesstoken();
+  const refreshToken = user.genarterefreshtoken();
+
+  // Save refresh token
+  user.refreshtoken = refreshToken;
   await user.save({ validateBeforeSave: false });
 
-  // step 4 craete options for security purpose
   const options = {
     httpOnly: true,
     secure: true,
@@ -95,20 +102,22 @@ const login = async (req, res) => {
 
   const now = new Date();
 
-  //step 5 send it in cookie
   return res
-    .status(201)
-    .cookie("acesstoken", acesstoken, options)
-    .cookie("refreshtoken", refreshtoken, options)
+    .status(200)
+    .cookie("acesstoken", accessToken, options)
+    .cookie("refreshtoken", refreshToken, options)
     .json(
       new ApiResponse(
-        201,
-        { user, acesstoken },
-        `${email} login sucessfully at ${now.toLocaleString()}`,
-      ),
+        200,
+        {
+          user,
+          nurse, // Will contain assigned doctor if the user is a nurse
+          accessToken,
+        },
+        `${email} logged in successfully at ${now.toLocaleString()}`
+      )
     );
 };
-
 //refreshacesstoken Function
 const refreshacesstoken = async (req, res) => {
   const incomingtoken = req.cookie.refreshtoken;
@@ -182,4 +191,4 @@ const updatepassowrd = async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, null, "Password updated successfully"));
 };
-export { RegisterPatient, login, refreshacesstoken, logout, getcurrectuser,updatepassowrd };
+export { RegisterPatient, login, refreshacesstoken, logout, getcurrectuser,updatepassowrd }
