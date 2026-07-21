@@ -2,9 +2,9 @@ import mongoose, { Schema } from "mongoose";
 
 const AppointmentSchema = new Schema(
   {
-    user: {
+    patient: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Patient",
       required: true,
       index: true,
     },
@@ -14,14 +14,18 @@ const AppointmentSchema = new Schema(
       required: true,
       index: true,
     },
-    date: {
+    appointmentDate: {
       type: Date,
       required: true,
     },
+    bookedAt: {
+      type: Date,
+      default: Date.now,
+    },
     status: {
       type: String,
-      required: true,
-      enum: ["Pending", "conformed", "Completed", "cancelled"],
+      enum: ["Pending", "Confirmed", "Completed", "Cancelled"],
+      default: "Pending",
       index: true,
     },
   },
