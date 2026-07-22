@@ -1,27 +1,33 @@
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Appointment } from "../models/Appointment.models.js";
+import { Patient } from "../models/Patient.model.js";
 import { User } from "../models/User.model.js";
 
-const bookapointment = async (req, res) => {
-  const userid = req.params.id;
+const bookAppointment = async (req, res) => {
+  const { doctor, appointmentDate } = req.body;
 
-  const { doctor, status } = req.body;
-
-  const patient = await User.findOne({ userid });
-
-  if (!patient) throw new ApiError("Patien not found");
-
-  const appointment = await Appointment.create({
-    user: patient._id,
-    doctor,
-    status: "Pending",
+  const patient = await Patient.findOne({
+    user: req.user._id,
   });
 
-  if (!appointment)
-    throw new ApiError("something went wrong while booking appointment");
+  if (!patient) {
+    throw new ApiError(404, "Patient not found");
+  }
 
-  return res.json(new ApiResponse(200, "Apoointment Sucessfull", appointment));
+  const appointment = await Appointment.create({
+    patient: patient._id,
+    doctor,
+    appointmentDate,
+  });
+
+  return res.status(201).json(
+    new ApiResponse(
+      201,
+      appointment,
+      "Appointment booked successfully"
+    )
+  );
 };
 
 const conformedStstus = async (req, res) => {
@@ -94,4 +100,4 @@ const getmyappointments = async (req, res) => {
       .json(new ApiResponse(200, appointments, "Appointments fetched"));
   }
 };
-export { bookapointment, conformedStstus, CompletedStstus, CancellStstus,getmyappointments };
+export { bookAppointment, conformedStstus, CompletedStstus, CancellStstus,getmyappointments };
