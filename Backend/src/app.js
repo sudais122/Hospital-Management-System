@@ -7,6 +7,7 @@ import authRouter from "./routes/auth.routes.js";
 import Doctor from "./routes/doctor.routes.js";
 import Nurse from "./routes/nurse.routes.js";
 import Appointment from "./routes/Appointment.routes.js";
+import admin from "./routes/admin.routes.js"
 
 const app = express();
 
@@ -29,5 +30,6 @@ app.use("/user", authRouter);
 app.use("/doctor", Doctor);
 app.use("/Nurse", Nurse);
 app.use("/Appointment",Appointment);
+app.use("/admin", admin)
 
 export { app };

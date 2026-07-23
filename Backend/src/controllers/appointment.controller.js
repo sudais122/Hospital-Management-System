@@ -103,7 +103,7 @@ const getmyappointments = async (req, res) => {
   }
 
   if (req.user.role === "doctor") {
-    const doctor = await Doctor.findOne({ user: req.user._id });
+    const doctor = await doctor.findOne({ user: req.user._id });
 
     const appointments = await Appointment.find({
       doctor: doctor._id,
