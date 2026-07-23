@@ -3,6 +3,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { Appointment } from "../models/Appointment.models.js";
 import { Patient } from "../models/Patient.model.js";
 import { User } from "../models/User.model.js";
+import { populate } from "dotenv";
 
 const bookAppointment = async (req, res) => {
   const { doctor, appointmentDate } = req.body;
@@ -19,15 +20,28 @@ const bookAppointment = async (req, res) => {
     patient: patient._id,
     doctor,
     appointmentDate,
-  });
+  })
+    const populateappointment =  await Appointment.findById(appointment._id).
+    populate({
+      path: "doctor",
+      select: "specialization weekavalibility consultationFee startTime endtime",
+      populate: {
+        path: "user",
+        select: "fullname email phone"
+      },
+    })
+    .populate({
+      path: "patient",
+      select: "fullname email phone bloodgroup",
+      populate: {
+        path: "user",
+        select: "fullname email phone"
+      },
+    });
 
-  return res.status(201).json(
-    new ApiResponse(
-      201,
-      appointment,
-      "Appointment booked successfully"
-    )
-  );
+  return res
+    .status(201)
+    .json(new ApiResponse(201, populateappointment, "Appointment booked successfully"));
 };
 
 const conformedStstus = async (req, res) => {
@@ -100,4 +114,10 @@ const getmyappointments = async (req, res) => {
       .json(new ApiResponse(200, appointments, "Appointments fetched"));
   }
 };
-export { bookAppointment, conformedStstus, CompletedStstus, CancellStstus,getmyappointments };
+export {
+  bookAppointment,
+  conformedStstus,
+  CompletedStstus,
+  CancellStstus,
+  getmyappointments,
+};

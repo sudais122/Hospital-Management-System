@@ -14,10 +14,6 @@ const AppointmentSchema = new Schema(
       required: true,
       index: true,
     },
-    appointmentDate: {
-      type: Date,
-      required: true,
-    },
     bookedAt: {
       type: Date,
       default: Date.now,

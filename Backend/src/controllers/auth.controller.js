@@ -4,6 +4,7 @@ import { User } from "../models/User.model.js";
 import { Patient } from "../models/Patient.model.js";
 import jwt from "jsonwebtoken";
 import Nurse from "../models/Nurse.model.js";
+import { Doctor } from "../models/Doctor.model.js";
 
 //Register Function
 const RegisterPatient = async (req, res) => {
@@ -80,11 +81,22 @@ const login = async (req, res) => {
     throw new ApiError(401, "Invalid password");
   }
 
-  // If the user is a nurse, fetch nurse profile and assigned doctor
-  let nurse = null;
 
-  if (user.role === "nurse") {
-    nurse = await Nurse.findOne({ user: user._id })
+  let profile =  null;
+
+  if(user.role === "doctor"){
+    profile = await Doctor.findOne({user: user._id})
+    .populate("user" ,"fullname email phone");
+  }
+
+  if(user.role === "nurse"){
+     profile = await Nurse.findOne({user: user._id})
+    .populate("user","fullname email phone");
+  }
+
+  if(user.role === "patient"){
+       profile = await Patient.findOne({user: user._id})
+      .populate("user","fullname email phone");
   }
 
   // Generate tokens
@@ -110,8 +122,7 @@ const login = async (req, res) => {
       new ApiResponse(
         200,
         {
-          user,
-          nurse, // Will contain assigned doctor if the user is a nurse
+          profile,
           accessToken,
         },
         `${email} logged in successfully at ${now.toLocaleString()}`
